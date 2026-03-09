@@ -1,4 +1,5 @@
 using BackendFacturas.Models;
+using BackendFacturas.DTOs;
 using BackendFacturas.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,12 +17,21 @@ public class InvoicesController : ControllerBase
     }
 
     [HttpGet("{customerID}")]
-    public ActionResult<IEnumerable<Invoice>> GetInvoices(int customerID)
+    public ActionResult<IEnumerable<InvoiceDto>> GetInvoices(int customerID)
     {
         var invoices = _service.GetInvoices(customerID);
         if (!invoices.Any())
             return NotFound(new { message = "No se encontraron facturas para este cliente." });
 
-        return Ok(invoices);
+        var result = invoices.Select(i => new InvoiceDto
+        {
+            InvoiceID = i.InvoiceID,
+            Date = i.Date,
+            Amount = i.Amount,
+            Status = i.Status,
+            CustomerID = i.CustomerID
+        });
+
+        return Ok(result);
     }
 }
